@@ -5,28 +5,28 @@ include(ExternalProject)
 # ---------------------------------------------------------------------------
 
 set(
-    BLOCKCOMPRESSOR_ZSTD_PREFIX
+    BLOCK_COMPRESSOR_ZSTD_PREFIX
     "${CMAKE_CURRENT_BINARY_DIR}/install"
 )
 
 set(
-    BLOCKCOMPRESSOR_ZSTD_INCLUDE_DIR
-    "${BLOCKCOMPRESSOR_ZSTD_PREFIX}/include"
+    BLOCK_COMPRESSOR_ZSTD_INCLUDE_DIR
+    "${BLOCK_COMPRESSOR_ZSTD_PREFIX}/include"
 )
 
 set(
-    BLOCKCOMPRESSOR_ZSTD_LIBRARY_DIR
-    "${BLOCKCOMPRESSOR_ZSTD_PREFIX}/lib"
+    BLOCK_COMPRESSOR_ZSTD_LIBRARY_DIR
+    "${BLOCK_COMPRESSOR_ZSTD_PREFIX}/lib"
 )
 
 # The directories must exist at CMake configure time because they will be
 # referenced by an IMPORTED target below.
-file(MAKE_DIRECTORY "${BLOCKCOMPRESSOR_ZSTD_INCLUDE_DIR}")
-file(MAKE_DIRECTORY "${BLOCKCOMPRESSOR_ZSTD_LIBRARY_DIR}")
+file(MAKE_DIRECTORY "${BLOCK_COMPRESSOR_ZSTD_INCLUDE_DIR}")
+file(MAKE_DIRECTORY "${BLOCK_COMPRESSOR_ZSTD_LIBRARY_DIR}")
 
 set(
-    BLOCKCOMPRESSOR_ZSTD_LIBRARY
-    "${BLOCKCOMPRESSOR_ZSTD_LIBRARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}zstd${CMAKE_STATIC_LIBRARY_SUFFIX}"
+    BLOCK_COMPRESSOR_ZSTD_LIBRARY
+    "${BLOCK_COMPRESSOR_ZSTD_LIBRARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}zstd${CMAKE_STATIC_LIBRARY_SUFFIX}"
 )
 
 # ---------------------------------------------------------------------------
@@ -34,7 +34,7 @@ set(
 # ---------------------------------------------------------------------------
 
 ExternalProject_Add(
-    zstd_external
+    zstd_ext
 
     GIT_REPOSITORY
         https://github.com/facebook/zstd.git
@@ -50,7 +50,7 @@ ExternalProject_Add(
         build/cmake
 
     CMAKE_ARGS
-        -DCMAKE_INSTALL_PREFIX=${BLOCKCOMPRESSOR_ZSTD_PREFIX}
+        -DCMAKE_INSTALL_PREFIX=${BLOCK_COMPRESSOR_ZSTD_PREFIX}
         -DCMAKE_INSTALL_LIBDIR=lib
 
         # Static only.
@@ -69,28 +69,28 @@ ExternalProject_Add(
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 
     BUILD_BYPRODUCTS
-        "${BLOCKCOMPRESSOR_ZSTD_LIBRARY}"
+        "${BLOCK_COMPRESSOR_ZSTD_LIBRARY}"
 )
 
 # ---------------------------------------------------------------------------
 # Imported target
 # ---------------------------------------------------------------------------
 
-add_library(external_zstd STATIC IMPORTED GLOBAL)
+add_library(zstd_ext STATIC IMPORTED GLOBAL)
 
 set_target_properties(
-    external_zstd
+    zstd_ext
     PROPERTIES
         IMPORTED_LOCATION
-            "${BLOCKCOMPRESSOR_ZSTD_LIBRARY}"
+            "${BLOCK_COMPRESSOR_ZSTD_LIBRARY}"
 
         INTERFACE_INCLUDE_DIRECTORIES
-            "${BLOCKCOMPRESSOR_ZSTD_INCLUDE_DIR}"
+            "${BLOCK_COMPRESSOR_ZSTD_INCLUDE_DIR}"
 )
 
 add_dependencies(
-    external_zstd
+    zstd_ext
     zstd_external
 )
 
-add_library(external::zstd ALIAS external_zstd)
+add_library(external::zstd ALIAS zstd_ex)
