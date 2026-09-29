@@ -34,7 +34,7 @@ set(
 # ---------------------------------------------------------------------------
 
 ExternalProject_Add(
-    zstd_ext
+    zstd_external
 
     GIT_REPOSITORY
         https://github.com/facebook/zstd.git
@@ -93,4 +93,4 @@ add_dependencies(
     zstd_external
 )
 
-add_library(external::zstd ALIAS zstd_ex)
+add_library(external::zstd ALIAS zstd_ext)
