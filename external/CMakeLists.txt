@@ -1,7 +1,7 @@
-if(BLOCKCOMPRESSOR_ENABLE_ZSTD)
+if(BLOCK_COMPRESSOR_ENABLE_ZSTD)
     add_subdirectory(zstd)
 endif()
 
-if(BLOCKCOMPRESSOR_ENABLE_CDS)
+if(BLOCK_COMPRESSOR_ENABLE_CDS)
     add_subdirectory(cds)
 endif()
