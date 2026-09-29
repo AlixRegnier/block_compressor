@@ -4,7 +4,8 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <utils.hpp>
+
+#include <block_compressor/utils.hpp>
 
 namespace block_compressor
 {

@@ -12,7 +12,7 @@
 #include <unordered_map>
 #include <variant>
 
-#include <utils.hpp>
+#include <block_compressor/utils.hpp>
 
 namespace block_compressor
 {

@@ -7,8 +7,8 @@
 #include <algorithm>
 #include <sys/mman.h>
 
-#include <decompressor.hpp>
-#include <int_container.hpp>
+#include <block_compressor/decompressor.hpp>
+#include <block_compressor/int_container.hpp>
 
 namespace block_compressor
 {

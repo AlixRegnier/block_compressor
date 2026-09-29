@@ -1,8 +1,8 @@
 #ifndef BLOCK_COMPRESSOR_CONFIG_H
 #define BLOCK_COMPRESSOR_CONFIG_H
 
-#include <config_io.hpp>
-#include <utils.hpp>
+#include <block_compressor/config_io.hpp>
+#include <block_compressor/utils.hpp>
 
 namespace block_compressor
 {

@@ -7,7 +7,8 @@
 #include <fcntl.h>
 #include <cstring>
 
-#include <utils.hpp>
+#include <block_compressor/utils.hpp>
+#include <block_compressor/int_container.hpp>
 
 //CDS headers
 #include <cds/ef.hpp>

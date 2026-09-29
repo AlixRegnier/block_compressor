@@ -3,7 +3,7 @@
 
 #include <zstd.h>
 
-#include <decompressor.hpp>
+#include <block_compressor/decompressor.hpp>
 
 namespace block_compressor
 {

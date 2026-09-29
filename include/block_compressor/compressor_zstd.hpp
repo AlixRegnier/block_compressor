@@ -3,8 +3,8 @@
 
 #include <zstd.h>
 
-#include <compressor.hpp>
-#include <config_zstd.hpp>
+#include <block_compressor/compressor.hpp>
+#include <block_compressor/config_zstd.hpp>
 
 namespace block_compressor
 {

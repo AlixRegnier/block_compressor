@@ -1,7 +1,7 @@
 #ifndef BLOCK_COMPRESSOR_CONFIG_ZSTD_H
 #define BLOCK_COMPRESSOR_CONFIG_ZSTD_H
 
-#include <config.hpp>
+#include <block_compressor/config.hpp>
 
 namespace block_compressor
 {

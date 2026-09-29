@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 project(
-    blockcompressor
+    block_compressor
     VERSION 1.0.0
     LANGUAGES CXX
 )
@@ -11,13 +11,13 @@ project(
 # ---------------------------------------------------------------------------
 
 option(
-    BLOCKCOMPRESSOR_ENABLE_ZSTD
+    BLOCK_COMPRESSOR_ENABLE_ZSTD
     "Enable headers that depend on Zstd"
     OFF
 )
 
 option(
-    BLOCKCOMPRESSOR_ENABLE_CDS
+    BLOCK_COMPRESSOR_ENABLE_CDS
     "Enable headers that depend on cds"
     OFF
 )
@@ -26,40 +26,39 @@ option(
 # Core header-only library
 # ---------------------------------------------------------------------------
 
-add_library(blockcompressor INTERFACE)
-add_library(blockcompressor::core ALIAS blockcompressor)
+add_library(block_compressor INTERFACE)
+add_library(block_compressor::core ALIAS block_compressor)
 
 target_include_directories(
-    blockcompressor
+    block_compressor
     INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )
 
-# Pick whatever your base library actually requires.
 target_compile_features(
-    blockcompressor
+    block_compressor
     INTERFACE
-        cxx_std_20
+        cxx_std_17
 )
 
 target_sources(
-    blockcompressor
+    block_compressor
     INTERFACE
     FILE_SET HEADERS
     BASE_DIRS
         ${CMAKE_CURRENT_SOURCE_DIR}/include
     FILES
-        include/block_compressor.hpp
-        include/block_decompressor.hpp
-        include/compressor.hpp
-        include/config.hpp
-        include/config_io.hpp
-        include/decompressor.hpp
-        include/error.hpp
-        include/int_container.hpp
-        include/stream.hpp
-        include/utils.hpp
+        include/block_compressor/block_compressor.hpp
+        include/block_compressor/block_decompressor.hpp
+        include/block_compressor/compressor.hpp
+        include/block_compressor/config.hpp
+        include/block_compressor/config_io.hpp
+        include/block_compressor/decompressor.hpp
+        include/block_compressor/error.hpp
+        include/block_compressor/int_container.hpp
+        include/block_compressor/stream.hpp
+        include/block_compressor/utils.hpp
 )
 
 # ---------------------------------------------------------------------------
@@ -72,27 +71,27 @@ add_subdirectory(external)
 # Optional Zstd-facing interface
 # ---------------------------------------------------------------------------
 
-if(BLOCKCOMPRESSOR_ENABLE_ZSTD)
-    add_library(blockcompressor_zstd INTERFACE)
-    add_library(blockcompressor::zstd ALIAS blockcompressor_zstd)
+if(BLOCK_COMPRESSOR_ENABLE_ZSTD)
+    add_library(block_compressor_zstd INTERFACE)
+    add_library(block_compressor::zstd ALIAS block_compressor_zstd)
 
     target_link_libraries(
-        blockcompressor_zstd
+        block_compressor_zstd
         INTERFACE
-            blockcompressor
+            block_compressor
             external::zstd
     )
 
     target_sources(
-        blockcompressor_zstd
+        block_compressor_zstd
         INTERFACE
         FILE_SET HEADERS
         BASE_DIRS
             ${CMAKE_CURRENT_SOURCE_DIR}/include
         FILES
-            include/compressor_zstd.hpp
-            include/decompressor_zstd.hpp
-            include/config_zstd.hpp
+            include/block_compressor/compressor_zstd.hpp
+            include/block_compressor/decompressor_zstd.hpp
+            include/block_compressor/config_zstd.hpp
     )
 endif()
 
@@ -100,31 +99,31 @@ endif()
 # Optional cds-facing interface
 # ---------------------------------------------------------------------------
 
-if(BLOCKCOMPRESSOR_ENABLE_CDS)
-    add_library(blockcompressor_cds INTERFACE)
-    add_library(blockcompressor::cds ALIAS blockcompressor_cds)
+if(BLOCK_COMPRESSOR_ENABLE_CDS)
+    add_library(block_compressor_cds INTERFACE)
+    add_library(block_compressor::cds ALIAS block_compressor_cds)
 
     target_link_libraries(
-        blockcompressor_cds
+        block_compressor_cds
         INTERFACE
-            blockcompressor
+            block_compressor
             external::cds
     )
 
     # tlemane/cds currently requires C++23.
     target_compile_features(
-        blockcompressor_cds
+        block_compressor_cds
         INTERFACE
             cxx_std_23
     )
 
     target_sources(
-        myproject_cds
+        block_compressor_cds
         INTERFACE
         FILE_SET HEADERS
         BASE_DIRS
             ${CMAKE_CURRENT_SOURCE_DIR}/include
         FILES
-            include/int_container_ef.hpp
+            include/block_compressor/int_container_ef.hpp
     )
 endif()

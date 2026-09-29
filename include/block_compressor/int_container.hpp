@@ -1,12 +1,13 @@
 #ifndef BLOCK_COMPRESSOR_INT_CONTAINER_H
 #define BLOCK_COMPRESSOR_INT_CONTAINER_H
 
-#include <utils.hpp>
 #include <vector>
 #include <sys/mman.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <cstring>
+
+#include <block_compressor/utils.hpp>
 
 namespace block_compressor
 {

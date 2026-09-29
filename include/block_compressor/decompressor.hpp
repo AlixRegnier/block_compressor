@@ -3,7 +3,8 @@
 
 #include <cstdint>
 #include <cstring>
-#include <error.hpp>
+
+#include <block_compressor/error.hpp>
 
 namespace block_compressor
 {

@@ -5,11 +5,11 @@
 #include <memory>
 #include <vector>
 
-#include <config.hpp>
-#include <compressor.hpp>
-#include <utils.hpp>
-#include <stream.hpp>
-#include <int_container.hpp>
+#include <block_compressor/config.hpp>
+#include <block_compressor/compressor.hpp>
+#include <block_compressor/int_container.hpp>
+#include <block_compressor/utils.hpp>
+#include <block_compressor/stream.hpp>
 
 namespace block_compressor
 {
