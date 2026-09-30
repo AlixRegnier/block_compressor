@@ -8,11 +8,11 @@ namespace block_compressor
     class ConfigZstd : public Config
     {
     private:
-        std::uint64_t preset = default_preset;
+        std::int64_t preset = default_preset;
         std::uint64_t wlog = default_wlog;
 
     public:
-        static constexpr std::uint64_t default_preset = 3;
+        static constexpr std::int64_t default_preset = 3;
         static constexpr std::uint64_t default_wlog = 0; //use Zstd default wlog value
 
         ConfigZstd() = default;
@@ -39,10 +39,10 @@ namespace block_compressor
             Config::export_config(config_path, config_io);
         }
 
-        virtual std::uint64_t get_preset() const { return preset; }
+        virtual std::int64_t get_preset() const { return preset; }
         virtual std::uint64_t get_wlog() const { return wlog; }
 
-        virtual void set_preset(std::uint64_t preset) { this->preset = preset; }
+        virtual void set_preset(std::int64_t preset) { this->preset = preset; }
         virtual void set_wlog(std::uint64_t wlog) { this->wlog = wlog; }
 
         virtual std::string to_string() const override
