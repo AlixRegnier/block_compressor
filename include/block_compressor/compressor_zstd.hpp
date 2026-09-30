@@ -13,7 +13,7 @@ namespace block_compressor
     private:
         ZSTD_CCtx* context;
     public:
-        CompressorZstd(std::uint64_t preset = ConfigZstd::default_preset, std::uint64_t wlog = ConfigZstd::default_wlog)
+        CompressorZstd(std::int64_t preset = ConfigZstd::default_preset, std::uint64_t wlog = ConfigZstd::default_wlog)
         {
             context = ZSTD_createCCtx();
             ZSTD_CCtx_setParameter(context, ZSTD_c_compressionLevel, preset);
