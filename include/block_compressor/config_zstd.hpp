@@ -25,7 +25,7 @@ namespace block_compressor
 
         virtual void import_config(const ConfigIO& config_io) override
         {
-            set_preset(config_io.get<std::uint64_t>("zstd_preset", default_preset));
+            set_preset(config_io.get<std::int64_t>("zstd_preset", default_preset));
             set_wlog(config_io.get<std::uint64_t>("zstd_wlog", default_wlog));
 
             Config::import_config(config_io); 
