@@ -19,7 +19,7 @@ namespace block_compressor
     class ConfigIO
     {
     private:
-        using Value = std::variant<double, std::int64_t, std::uint64_t, std::string>;
+        using Value = std::variant<double, std::int64_t, std::string>;
         std::unordered_map<std::string, Value> properties;
 
     public:
@@ -102,10 +102,7 @@ namespace block_compressor
             {
                 try
                 {
-                    if (!value.empty() && value.front() == '-')
-                        properties[key] = static_cast<std::int64_t>(std::stoll(value));
-                    else
-                        properties[key] = static_cast<std::uint64_t>(std::stoull(value));
+                    properties[key] = static_cast<std::int64_t>(std::stoll(value));
                 }
                 catch (const std::exception&)
                 {
