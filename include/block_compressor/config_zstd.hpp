@@ -33,7 +33,7 @@ namespace block_compressor
 
         virtual void export_config(const std::string& config_path, ConfigIO& config_io) const override
         {
-            config_io.set<std::uint64_t>("zstd_preset", preset);
+            config_io.set<std::int64_t>("zstd_preset", preset);
             config_io.set<std::uint64_t>("zstd_wlog", wlog);
 
             Config::export_config(config_path, config_io);
