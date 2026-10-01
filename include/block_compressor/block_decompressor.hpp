@@ -61,6 +61,9 @@ namespace block_compressor
         //Return a pointer 
         const char* get_row(std::uint64_t hash, std::size_t row_size);
 
+        //Unsafe access to raw file
+        const char* raw_ptr() const;
+
         //Decompress all blocks
         std::size_t decompress_all(const std::string& output_path, int mode = 0644);
         std::size_t decompress_all(std::ostream& output_stream);
@@ -175,6 +178,11 @@ namespace block_compressor
 
         decompress_block(block_idx);
         return block + row;
+    }
+
+    inline const char* BlockDecompressor::raw_ptr() const
+    {
+        return static_cast<const char*>(__map);
     }
 
     inline std::size_t BlockDecompressor::decompress_all(const std::string& output_path, int mode)
