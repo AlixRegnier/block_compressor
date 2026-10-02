@@ -136,7 +136,7 @@ namespace block_compressor
         std::size_t written_bytes = decompressor->decompress(map+a, block, b-a, block_size);
 
         //Throw exception if last block is smaller than block_size OR a given block is greater than
-        if(idx+1 != nb_blocks && written_bytes < block_size || written_bytes > block_size)
+        if((idx+1 != nb_blocks && written_bytes < block_size) || written_bytes > block_size)
             throw block_compressor_error("BlockDecompressor", "decompress_block", "Decompressed block expected size is '" + std::to_string(block_size) + "', got: '" + std::to_string(written_bytes) + "'");
 
         current_block_index = idx;
@@ -162,7 +162,7 @@ namespace block_compressor
         std::size_t written_bytes = decompressor->decompress(map+a, output, b-a, block_size);
 
         //Throw exception if block is smaller than (without being the last block) OR a the block is greater than expected
-        if(idx+1 != nb_blocks && written_bytes < block_size || written_bytes > block_size)
+        if((idx+1 != nb_blocks && written_bytes < block_size) || written_bytes > block_size)
             throw block_compressor_error("BlockDecompressor", "decompress_block", "Decompressed block expected size is '" + std::to_string(block_size) + "', got: '" + std::to_string(written_bytes) + "'");
 
         return written_bytes;
