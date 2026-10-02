@@ -177,7 +177,7 @@ namespace block_compressor
         std::size_t row = row_idx % rows_per_block;
 
         decompress_block(block_idx);
-        return block + row;
+        return block + row * row_size;
     }
 
     inline const char* BlockDecompressor::raw_ptr() const
