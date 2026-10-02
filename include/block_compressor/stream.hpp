@@ -13,7 +13,8 @@ namespace block_compressor
     {
     public:
         // Borrow an existing stream.
-        explicit InputStream(std::istream& stream) { }
+        explicit InputStream(std::istream& stream)
+            : _stream(&stream) { }
 
         // Own a file stream created from a path.
         explicit InputStream(const std::string& filename)
