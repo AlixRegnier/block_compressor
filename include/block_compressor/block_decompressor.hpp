@@ -15,9 +15,10 @@ namespace block_compressor
     class BlockDecompressor
     {
     private:
-        char* block;
+        char* block = nullptr;
 
-        Decompressor* decompressor;
+        Decompressor* decompressor = nullptr;
+        IntContainer<std::uint64_t>* int_container = nullptr;
 
         std::size_t current_block_index = ~std::size_t{0};
         std::size_t current_block_size = ~std::size_t{0};
@@ -31,9 +32,6 @@ namespace block_compressor
         void* __map = nullptr;
         std::size_t map_size = 0;
 
-        IntContainer<std::uint64_t>* int_container;
-
-        
     public:
         //Copy is deleted
         BlockDecompressor(const BlockDecompressor&) = delete;
@@ -71,7 +69,7 @@ namespace block_compressor
     };
 
     inline BlockDecompressor::BlockDecompressor(const std::string& input_path, std::size_t block_size, Decompressor& decompressor, IntContainer<std::uint64_t>& int_container, std::size_t offset)
-        : block_size(block_size), owned(true), decompressor(&decompressor), int_container(&int_container)
+        : decompressor(&decompressor), int_container(&int_container), block_size(block_size), owned(true)
     {
         file_descriptor = open(input_path.c_str(), O_RDONLY);
 
@@ -101,7 +99,7 @@ namespace block_compressor
     }
 
     inline BlockDecompressor::BlockDecompressor(const char* input, std::size_t input_size, std::size_t block_size, Decompressor& decompressor, IntContainer<std::uint64_t>& int_container, std::size_t offset)
-        : block_size(block_size), owned(false), decompressor(&decompressor), int_container(&int_container), map(input+offset), map_size(input_size-offset) 
+        : decompressor(&decompressor), int_container(&int_container), block_size(block_size), owned(false), map(input+offset), map_size(input_size-offset) 
     { 
         nb_blocks = int_container.size() - 1;
         block = new char[block_size];

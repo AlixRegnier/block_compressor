@@ -16,11 +16,11 @@ namespace block_compressor
     class BlockCompressor
     {
     private:
-        Compressor* compressor;
-        IntContainer<std::uint64_t>* int_container;
+        Compressor* compressor = nullptr;
+        IntContainer<std::uint64_t>* int_container = nullptr;
 
-        char* block;
-        char* compressed_block;
+        char* block = nullptr;
+        char* compressed_block = nullptr;
 
         OutputStream output;
 
@@ -28,7 +28,7 @@ namespace block_compressor
         std::size_t block_size;
         std::size_t block_current_size = 0;
         std::size_t total_compressed_size = 0;
-        
+
         bool closed = false;
 
         BlockCompressor(OutputStream output, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container);
@@ -56,7 +56,7 @@ namespace block_compressor
     };
 
     inline BlockCompressor::BlockCompressor(OutputStream output_stream, std::size_t block_size, Compressor& compressor, IntContainer<std::uint64_t>& int_container) 
-        : output(std::move(output_stream)), compressor(&compressor), int_container(&int_container)
+        : compressor(&compressor), int_container(&int_container), output(std::move(output_stream))
     {
         if(!output.valid())
             throw block_compressor_error("BlockCompressor", "()", "Invalid output stream");
