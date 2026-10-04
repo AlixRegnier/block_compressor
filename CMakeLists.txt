@@ -1,69 +1,129 @@
-cmake_minimum_required(VERSION 3.14)
-project(BlockCompressor VERSION 0.1.0 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.24)
 
-# Set C++17 standard
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+project(
+    block_compressor
+    VERSION 1.0.0
+    LANGUAGES CXX
+)
 
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
-endif()
+# ---------------------------------------------------------------------------
+# Options
+# ---------------------------------------------------------------------------
+
+option(
+    BLOCK_COMPRESSOR_ENABLE_ZSTD
+    "Enable headers that depend on Zstd"
+    OFF
+)
+
+option(
+    BLOCK_COMPRESSOR_ENABLE_CDS
+    "Enable headers that depend on cds"
+    OFF
+)
+
+# ---------------------------------------------------------------------------
+# Core header-only library
+# ---------------------------------------------------------------------------
+
+add_library(block_compressor INTERFACE)
+add_library(block_compressor::core ALIAS block_compressor)
+
+target_include_directories(
+    block_compressor
+    INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+)
+
+target_compile_features(
+    block_compressor
+    INTERFACE
+        cxx_std_17
+)
+
+target_sources(
+    block_compressor
+    INTERFACE
+    FILE_SET HEADERS
+    BASE_DIRS
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+    FILES
+        include/block_compressor/block_compressor.hpp
+        include/block_compressor/block_decompressor.hpp
+        include/block_compressor/compressor.hpp
+        include/block_compressor/config.hpp
+        include/block_compressor/config_io.hpp
+        include/block_compressor/decompressor.hpp
+        include/block_compressor/error.hpp
+        include/block_compressor/int_container.hpp
+        include/block_compressor/stream.hpp
+        include/block_compressor/utils.hpp
+)
+
+# ---------------------------------------------------------------------------
+# External dependencies
+# ---------------------------------------------------------------------------
 
 add_subdirectory(external)
 
-add_library(bc_build_type_flags INTERFACE)
-target_compile_options(bc_build_type_flags INTERFACE
-  $<$<CONFIG:Debug>:-O -g>
-  $<$<CONFIG:Release>:-O3 -DNDEBUG>
-  $<$<CONFIG:Profile>:-O3 -ggdb3 -DNDEBUG -fno-inline>
-  $<$<CONFIG:Coverage>:-O0 -g --coverage>
-)
+# ---------------------------------------------------------------------------
+# Optional Zstd-facing interface
+# ---------------------------------------------------------------------------
 
-include_directories(
-    ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/include/zstd
-    ${PROJECT_SOURCE_DIR}/include/lz4
-    ${PROJECT_BINARY_DIR}/sdsl/include
-)
+if(BLOCK_COMPRESSOR_ENABLE_ZSTD)
+    add_library(block_compressor_zstd INTERFACE)
+    add_library(block_compressor::zstd ALIAS block_compressor_zstd)
 
-set(BC_SRC_DIR ${PROJECT_SOURCE_DIR}/src)
-set(BC_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
+    target_link_libraries(
+        block_compressor_zstd
+        INTERFACE
+            block_compressor
+            external::zstd
+    )
 
-add_library(block_compressor)
-target_sources(block_compressor PRIVATE
-    ${BC_SRC_DIR}/BlockCompressor.cpp
-    ${BC_SRC_DIR}/ConfigurationLiterate.cpp
-    ${BC_SRC_DIR}/BlockDecompressor.cpp
-    ${BC_SRC_DIR}/zstd/BlockCompressorZSTD.cpp
-    ${BC_SRC_DIR}/zstd/BlockDecompressorZSTD.cpp
-    ${BC_SRC_DIR}/lz4/BlockCompressorLZ4.cpp
-    ${BC_SRC_DIR}/lz4/BlockDecompressorLZ4.cpp
-)
-target_link_libraries(block_compressor PRIVATE bc_build_type_flags)
-target_include_directories(block_compressor PUBLIC
-    $<BUILD_INTERFACE:${BC_INCLUDE_DIR}>
-    $<INSTALL_INTERFACE:include>
-)
-target_link_libraries(block_compressor PRIVATE sdsl-lite zstd_ext lz4_ext)
-add_dependencies(block_compressor zstd_ext lz4_ext)
+    target_sources(
+        block_compressor_zstd
+        INTERFACE
+        FILE_SET HEADERS
+        BASE_DIRS
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
+        FILES
+            include/block_compressor/compressor_zstd.hpp
+            include/block_compressor/decompressor_zstd.hpp
+            include/block_compressor/config_zstd.hpp
+    )
+endif()
 
-#Testing with main files
-if(BC_BUILD_MAIN)
-  #ZSTD
-  add_executable(block_compressor_bin ${BC_SRC_DIR}/zstd/mainBlockCompressorZSTD.cpp)
-  target_link_libraries(block_compressor_bin PRIVATE bc_build_type_flags sdsl-lite zstd_ext block_compressor)
-  add_dependencies(block_compressor_bin block_compressor)
+# ---------------------------------------------------------------------------
+# Optional cds-facing interface
+# ---------------------------------------------------------------------------
 
-  add_executable(block_decompressor_bin ${BC_SRC_DIR}/zstd/mainBlockDecompressorZSTD.cpp)
-  target_link_libraries(block_decompressor_bin PRIVATE bc_build_type_flags sdsl-lite zstd_ext block_compressor)
-  add_dependencies(block_decompressor_bin block_compressor)
+if(BLOCK_COMPRESSOR_ENABLE_CDS)
+    add_library(block_compressor_cds INTERFACE)
+    add_library(block_compressor::cds ALIAS block_compressor_cds)
 
-  #LZ4
-  add_executable(block_compressor_lz4_bin ${BC_SRC_DIR}/lz4/mainBlockCompressorLZ4.cpp)
-  target_link_libraries(block_compressor_lz4_bin PRIVATE bc_build_type_flags sdsl-lite lz4_ext block_compressor)
-  add_dependencies(block_compressor_lz4_bin block_compressor)
+    target_link_libraries(
+        block_compressor_cds
+        INTERFACE
+            block_compressor
+            external::cds
+    )
 
-  add_executable(block_decompressor_lz4_bin ${BC_SRC_DIR}/lz4/mainBlockDecompressorLZ4.cpp)
-  target_link_libraries(block_decompressor_lz4_bin PRIVATE bc_build_type_flags sdsl-lite lz4_ext block_compressor)
-  add_dependencies(block_decompressor_lz4_bin block_compressor)
+    # tlemane/cds currently requires C++23.
+    target_compile_features(
+        block_compressor_cds
+        INTERFACE
+            cxx_std_23
+    )
+
+    target_sources(
+        block_compressor_cds
+        INTERFACE
+        FILE_SET HEADERS
+        BASE_DIRS
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
+        FILES
+            include/block_compressor/int_container_ef.hpp
+    )
 endif()

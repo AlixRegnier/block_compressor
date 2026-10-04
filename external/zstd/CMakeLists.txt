@@ -1,40 +1,96 @@
 include(ExternalProject)
-include(GNUInstallDirs)
 
-add_library(zstd_ext INTERFACE)
+# ---------------------------------------------------------------------------
+# Paths
+# ---------------------------------------------------------------------------
 
-set(ZSTD_DIR ${PROJECT_BINARY_DIR}/bc_ext_install/zstd)
-
-include(ExternalProject)
-
-set(BC_ZSTD_BUILD_SHARED_LIB OFF CACHE BOOL "Build shared ZSTD library" FORCE)
-set(BC_ZSTD_BUILD_STATIC_LIB ON CACHE BOOL "Build static ZSTD library" FORCE)
-
-# Download and build Zstd as an External Project
-ExternalProject_Add(ZSTD-external
-    GIT_REPOSITORY https://github.com/facebook/zstd.git
-    GIT_TAG v1.5.7
-    SOURCE_SUBDIR build/cmake
-    CMAKE_ARGS 
-        -DCMAKE_INSTALL_PREFIX=${ZSTD_DIR}
-        -DZSTD_BUILD_STATIC=${BC_ZSTD_BUILD_STATIC_LIB}
-        -DZSTD_BUILD_SHARED=${BC_ZSTD_BUILD_SHARED_LIB}
-        -DBUILD_SHARED_LIBS=${BC_ZSTD_BUILD_SHARED_LIB}
-        -DZSTD_BUILD_PROGRAMS=OFF
-        -DZSTD_BUILD_TESTS=OFF
+set(
+    BLOCK_COMPRESSOR_ZSTD_PREFIX
+    "${CMAKE_CURRENT_BINARY_DIR}/install"
 )
 
-set(ZSTD_LIB "${ZSTD_DIR}/${CMAKE_INSTALL_LIBDIR}/${CMAKE_SHARED_LIBRARY_PREFIX}zstd${CMAKE_STATIC_LIBRARY_SUFFIX}")
+set(
+    BLOCK_COMPRESSOR_ZSTD_INCLUDE_DIR
+    "${BLOCK_COMPRESSOR_ZSTD_PREFIX}/include"
+)
 
-if (NOT ZSTD_HEADER_ONLY)
-  set_target_properties(
-    zstd_ext PROPERTIES
-    IMPORTED_LOCATION ${ZSTD_LIB}
-    INTERFACE_INCLUDE_DIRECTORIES "${ZSTD_DIR}/include"
-  )
-  target_link_libraries(zstd_ext INTERFACE "${ZSTD_LIB}")
-else()
-  target_compile_definitions(zstd_ext INTERFACE ZSTD_HEADER_ONLY)
-endif()
+set(
+    BLOCK_COMPRESSOR_ZSTD_LIBRARY_DIR
+    "${BLOCK_COMPRESSOR_ZSTD_PREFIX}/lib"
+)
 
-add_dependencies(zstd_ext ZSTD-external)
+# The directories must exist at CMake configure time because they will be
+# referenced by an IMPORTED target below.
+file(MAKE_DIRECTORY "${BLOCK_COMPRESSOR_ZSTD_INCLUDE_DIR}")
+file(MAKE_DIRECTORY "${BLOCK_COMPRESSOR_ZSTD_LIBRARY_DIR}")
+
+set(
+    BLOCK_COMPRESSOR_ZSTD_LIBRARY
+    "${BLOCK_COMPRESSOR_ZSTD_LIBRARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}zstd${CMAKE_STATIC_LIBRARY_SUFFIX}"
+)
+
+# ---------------------------------------------------------------------------
+# Build Zstd
+# ---------------------------------------------------------------------------
+
+ExternalProject_Add(
+    zstd_external
+
+    GIT_REPOSITORY
+        https://github.com/facebook/zstd.git
+
+    # Pin this in your actual project rather than following dev/master.
+    GIT_TAG
+        v1.5.7
+
+    GIT_SHALLOW
+        TRUE
+
+    SOURCE_SUBDIR
+        build/cmake
+
+    CMAKE_ARGS
+        -DCMAKE_INSTALL_PREFIX=${BLOCK_COMPRESSOR_ZSTD_PREFIX}
+        -DCMAKE_INSTALL_LIBDIR=lib
+
+        # Static only.
+        -DZSTD_BUILD_STATIC=ON
+        -DZSTD_BUILD_SHARED=OFF
+
+        # We only need the library.
+        -DZSTD_BUILD_PROGRAMS=OFF
+        -DZSTD_BUILD_TESTS=OFF
+        -DZSTD_BUILD_CONTRIB=OFF
+
+        # Propagate toolchain if the parent has one.
+        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+
+        # Useful for single-configuration generators.
+        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+
+    BUILD_BYPRODUCTS
+        "${BLOCK_COMPRESSOR_ZSTD_LIBRARY}"
+)
+
+# ---------------------------------------------------------------------------
+# Imported target
+# ---------------------------------------------------------------------------
+
+add_library(zstd_ext STATIC IMPORTED GLOBAL)
+
+set_target_properties(
+    zstd_ext
+    PROPERTIES
+        IMPORTED_LOCATION
+            "${BLOCK_COMPRESSOR_ZSTD_LIBRARY}"
+
+        INTERFACE_INCLUDE_DIRECTORIES
+            "${BLOCK_COMPRESSOR_ZSTD_INCLUDE_DIR}"
+)
+
+add_dependencies(
+    zstd_ext
+    zstd_external
+)
+
+add_library(external::zstd ALIAS zstd_ext)
